@@ -1,1 +1,1 @@
-pip install requests python-telegram-bot
+pip install requests
