@@ -206,6 +206,6 @@ application.add_handler(CommandHandler("surveiller", surveiller))
 application.add_handler(CommandHandler("stop", stop_surveiller))
 
 # Lancer le bot
-if _name_ == "_main_":
+if __name__ == "_main_":
     print("Bot en cours d'exécution...")
     application.run_polling()
