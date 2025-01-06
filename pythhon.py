@@ -16,6 +16,20 @@ user_preferences = {
     "is_monitoring": False    # Indique si la surveillance est active
 }
 
+# Fonction pour récupérer toutes les cryptos
+def get_all_coins():
+    """
+    Récupère une liste de toutes les crypto-monnaies disponibles via l'API de CoinGecko.
+    """
+    url = "https://api.coingecko.com/api/v3/coins/list"
+    response = requests.get(url)
+    if response.status_code == 200:
+        coins = response.json()
+        return [coin["id"] for coin in coins]
+    else:
+        print("Erreur lors de la récupération des cryptos :", response.status_code)
+        return []
+
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """
     Commande /start pour initialiser le bot.
@@ -26,10 +40,11 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         text=(
             "👋 Bienvenue sur le bot d'arbitrage crypto !\n"
             "🔧 Utilisez les commandes suivantes pour configurer vos préférences :\n"
-            " - `/exchange_type [centralized|decentralized|all]` : Type d'échangeur.\n"
-            " - `/min_volume [valeur]` : Volume minimum (en USD).\n"
-            " - `/min_percentage [valeur]` : Pourcentage minimum d'arbitrage.\n"
-            " - `/surveiller` : Démarrer la surveillance.\n"
+            " - /exchange_type [centralized|decentralized|all] : Type d'échangeur.\n"
+            " - /min_volume [valeur] : Volume minimum (en USD).\n"
+            " - /min_percentage [valeur] : Pourcentage minimum d'arbitrage.\n"
+            " - /surveiller : Démarrer la surveillance.\n"
+            " - /stop : Arrêter la surveillance.\n"
             "\n"
             "🚀 Une fois configuré, je surveillerai les opportunités d'arbitrage pour vous."
         )
@@ -97,7 +112,7 @@ async def surveiller(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if user_preferences["is_monitoring"]:
         await context.bot.send_message(
             chat_id=user_id,
-            text="⚠️ La surveillance est déjà en cours !"
+            text="⚠ La surveillance est déjà en cours !"
         )
         return
 
@@ -172,11 +187,11 @@ async def send_telegram_alert(user_id, coin_id, exchange1, price1, exchange2, pr
     Envoie une alerte sur Telegram lorsqu'une opportunité est trouvée.
     """
     message = (
-        f"💰 *Opportunité d'Arbitrage Détectée !*\n\n"
-        f"🔹 Crypto : *{coin_id}*\n"
-        f"🔹 Échangeur 1 : *{exchange1}* - Prix : *{price1:.2f} USD*\n"
-        f"🔹 Échangeur 2 : *{exchange2}* - Prix : *{price2:.2f} USD*\n"
-        f"🔹 Différence : *{diff_percentage:.2f}%*\n\n"
+        f"💰 Opportunité d'Arbitrage Détectée !\n\n"
+        f"🔹 Crypto : {coin_id}\n"
+        f"🔹 Échangeur 1 : {exchange1} - Prix : {price1:.2f} USD\n"
+        f"🔹 Échangeur 2 : {exchange2} - Prix : {price2:.2f} USD\n"
+        f"🔹 Différence : {diff_percentage:.2f}%\n\n"
         f"Profitez-en rapidement ! 🚀"
     )
     await bot.send_message(chat_id=user_id, text=message, parse_mode="Markdown")
@@ -191,6 +206,6 @@ application.add_handler(CommandHandler("surveiller", surveiller))
 application.add_handler(CommandHandler("stop", stop_surveiller))
 
 # Lancer le bot
-if __name__ == "__main__":
+if _name_ == "_main_":
     print("Bot en cours d'exécution...")
     application.run_polling()
